@@ -1,0 +1,1 @@
+# vastdb_parq_schema_file
