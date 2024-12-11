@@ -53,9 +53,16 @@ class ParquetChecker:
 def main():
     parser = argparse.ArgumentParser(description="Check Parquet file schema and element sizes.")
     parser.add_argument('file_path', help="Path to the Parquet file")
+    parser.add_argument('--check-element-sizes', action='store_true', 
+                        help="Check the sizes of elements in the Parquet file")
     args = parser.parse_args()
 
     checker = ParquetChecker(args.file_path)
     checker.print_parquet_schema()
     checker.check_column_types()
-    checker.check_element_sizes()
+
+    if args.check_element_sizes:
+        checker.check_element_sizes()
+
+if __name__ == "__main__":
+    main()
