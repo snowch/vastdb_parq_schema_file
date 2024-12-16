@@ -89,7 +89,8 @@ pq.write_table(table, 'data.parquet')
 ```
 
 ```bash
- parquet_checker data.parquet
+$ parquet_checker data.parquet
+
 Parquet schema:
 id: int64
 data: string
