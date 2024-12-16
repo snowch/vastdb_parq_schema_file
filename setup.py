@@ -12,7 +12,7 @@ setup(
         ]
     },
     install_requires=[
-        'numpy', 'pyarrow', 'tqdm'
+        'duckdb', 'numpy', 'pyarrow', 'tqdm'
     ],
     python_requires='>=3.6',
 )
