@@ -5,8 +5,11 @@ import duckdb
 import re
 import time
 
+bold_on = "\033[1m"
+bold_off = "\033[0m"
 
 class ParquetChecker:
+
     def __init__(self, file_path):
         self.file_path = file_path
         self.schema = pq.read_schema(file_path)
@@ -20,7 +23,7 @@ class ParquetChecker:
         ]
 
     def check_column_types(self):
-        print("\nChecking column types...")
+        print(f"\n{bold_on}Checking column types...{bold_off}")
         for i in range(len(self.schema)):
             field = self.schema[i]
             column_name = field.name
@@ -34,7 +37,7 @@ class ParquetChecker:
         print("Column type check complete.")
 
     def print_parquet_schema(self):
-        print("Parquet schema:")
+        print(f"{bold_on}Parquet schema:{bold_off}")
         print(self.schema)
 
     def check_element_sizes(self):
@@ -42,7 +45,7 @@ class ParquetChecker:
         Check element sizes using DuckDB, measuring sizes in bytes.
         """
         start_time = time.time()
-        print("\nVerifying variable length column sizes using DuckDB...")
+        print(f"\n{bold_on}Verifying variable length column sizes using DuckDB...{bold_off}")
 
         conn = duckdb.connect()
         conn.execute(f"CREATE TABLE parquet_table AS SELECT * FROM '{self.file_path}'")
@@ -79,6 +82,7 @@ class ParquetChecker:
 
             elapsed_time = time.time() - start_time
             print(f"\nTime taken for element size verification: {elapsed_time:.2f} seconds")
+            
 
 
 def main():
