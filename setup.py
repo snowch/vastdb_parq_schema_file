@@ -12,7 +12,7 @@ setup(
         ]
     },
     install_requires=[
-        'pyarrow',  # Add any other dependencies your project needs
+        'numpy', 'pyarrow', 'tqdm'
     ],
-    python_requires='>=3.6',  # Specify minimum Python version if needed
+    python_requires='>=3.6',
 )
