@@ -1,4 +1,6 @@
-# vastdb_parq_schema_file
+# Vastdb parquet check
+
+Checks a parquet file can be loaded into Vast DB.
 
 ## Limitations
 
