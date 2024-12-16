@@ -94,19 +94,4 @@ table = pa.Table.from_pydict(data)
 pq.write_table(table, 'data.parquet')
 ```
 
-```bash
-$ parquet_checker data.parquet
-
-Parquet schema:
-id: int64
-data: string
-
-Checking column types...
-Column type check complete.
-
-Verifying variable length column sizes using DuckDB...
-Column 'data': 250.00 KB [EXCEEDS 126KB]
-
-Time taken for element size verification: 0.01 seconds
-```
-
+![String field too large](docs/string_field_too_large.gif)
