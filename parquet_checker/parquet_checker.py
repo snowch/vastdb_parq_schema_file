@@ -6,9 +6,9 @@ import re
 import time
 
 bold_on = "\033[1m"
+red = "\033[31m"
 yellow = "\033[33m"
 reset = "\033[0m"
-
 
 class ParquetChecker:
 
@@ -27,21 +27,22 @@ class ParquetChecker:
     def check_column_types(self):
         print(f"\n{bold_on}Checking column types...{reset}")
 
-        def check_type(self, field, path=""):
+        def check_type(field, path=""):
             column_name = path + field.name if path else field.name
             column_type = field.type
-            type_name = str(column_type).upper()
+            type_name = re.sub(r"\[.*?\]", "", str(column_type).upper())
 
-            type_name = re.sub(r"\[.*?\]", "", type_name)
-
-            if column_type.num_fields == 0:
-                if type_name not in self.allowed_types:
-                    print(f"Column '{column_name}' has unsupported type: {type_name}")
-            else:
+            if column_type.num_fields > 0:
                 for i in range(column_type.num_fields):
                     nested_field = column_type.field(i)
                     new_path = column_name + "." + nested_field.name
-                    check_type(self, nested_field, new_path)
+                    check_type(nested_field, new_path)
+            else:
+                if type_name not in self.allowed_types:
+                    print(f"{red}Column '{column_name}' has unsupported type: {type_name}{reset}")
+
+        for field in self.schema:
+            check_type(field)
 
         print("Column type check complete.")
 
@@ -87,7 +88,7 @@ class ParquetChecker:
             for i, max_size in enumerate(result):
                 column_name = fields[i]
                 size_kb = max_size / 1024 if max_size else 0
-                flag = " [EXCEEDS 126KB]" if size_kb > 126 else ""
+                flag = f" {red}[EXCEEDS 126KB]{reset}" if size_kb > 126 else ""
                 print(f"Column '{column_name}': {size_kb:.2f} KB{flag}")
 
             if has_nested:
@@ -97,8 +98,6 @@ class ParquetChecker:
             elapsed_time = time.time() - start_time
             print(f"\nTime taken for element size verification: {elapsed_time:.2f} seconds")
             
-
-
 def main():
     parser = argparse.ArgumentParser(description="Check Parquet file schema and element sizes.")
     parser.add_argument('file_path', help="Path to the Parquet file")
