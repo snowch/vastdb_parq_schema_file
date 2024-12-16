@@ -64,3 +64,41 @@ Column 'wav_match_flag': 0.00 KB
 
 Time taken for element size verification: 1.46 seconds
 ```
+
+---
+
+Column too wide example:
+
+```python
+import pyarrow as pa
+import pyarrow.parquet as pq
+import random
+import string
+
+def generate_random_string(length):
+    letters = string.ascii_uppercase
+    return ''.join(random.choice(letters) for i in range(length * 10))
+
+# Create a PyArrow Table
+data = {'id': [1],
+        'data': [generate_random_string(25600)]}
+table = pa.Table.from_pydict(data)
+
+# Write the Table to a Parquet file
+pq.write_table(table, 'data.parquet')
+```
+
+```bash
+ parquet_checker data.parquet
+Parquet schema:
+id: int64
+data: string
+
+Checking column types...
+Column type check complete.
+
+Verifying variable length column sizes using DuckDB...
+Column 'data': 250.00 KB [EXCEEDS 126KB]
+
+Time taken for element size verification: 0.01 seconds
+```
