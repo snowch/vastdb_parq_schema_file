@@ -6,7 +6,9 @@ import re
 import time
 
 bold_on = "\033[1m"
-bold_off = "\033[0m"
+yellow = "\033[33m"
+reset = "\033[0m"
+
 
 class ParquetChecker:
 
@@ -23,7 +25,7 @@ class ParquetChecker:
         ]
 
     def check_column_types(self):
-        print(f"\n{bold_on}Checking column types...{bold_off}")
+        print(f"\n{bold_on}Checking column types...{reset}")
 
         def check_type(self, field, path=""):
             column_name = path + field.name if path else field.name
@@ -44,7 +46,7 @@ class ParquetChecker:
         print("Column type check complete.")
 
     def print_parquet_schema(self):
-        print(f"{bold_on}Parquet schema:{bold_off}")
+        print(f"{bold_on}Parquet schema:{reset}")
         print(self.schema)
 
     def check_element_sizes(self):
@@ -52,13 +54,14 @@ class ParquetChecker:
         Check element sizes using DuckDB, measuring sizes in bytes.
         """
         start_time = time.time()
-        print(f"\n{bold_on}Verifying variable length column sizes using DuckDB...{bold_off}")
+        print(f"\n{bold_on}Verifying variable length column sizes using DuckDB...{reset}")
 
         conn = duckdb.connect()
         conn.execute(f"CREATE TABLE parquet_table AS SELECT * FROM '{self.file_path}'")
 
         fields = []
         max_size_queries = []
+        has_nested = False
         for field in self.schema:
             column_name = field.name
             column_type = field.type
@@ -70,9 +73,9 @@ class ParquetChecker:
                 max_size_queries.append(f"MAX(STRLEN({column_name})) AS max_{column_name}")
                 fields.append(column_name)
             elif pa.types.is_list(column_type) or pa.types.is_struct(column_type) or pa.types.is_map(column_type):
-                continue # not yet implemented
-                # max_size_queries.append(f"MAX(STRLEN(TO_JSON({column_name}))) AS max_{column_name}")
-                # fields.append(column_name)
+                max_size_queries.append(f"-1 AS max_{column_name}")
+                fields.append(column_name)
+                has_nested = True
 
         if len(max_size_queries) > 0:
             query = f"SELECT {', '.join(max_size_queries)} FROM parquet_table"
@@ -86,6 +89,10 @@ class ParquetChecker:
                 size_kb = max_size / 1024 if max_size else 0
                 flag = " [EXCEEDS 126KB]" if size_kb > 126 else ""
                 print(f"Column '{column_name}': {size_kb:.2f} KB{flag}")
+
+            if has_nested:
+                print(f"{yellow}Checking size of nested columns is not supported.{reset}")
+
 
             elapsed_time = time.time() - start_time
             print(f"\nTime taken for element size verification: {elapsed_time:.2f} seconds")
