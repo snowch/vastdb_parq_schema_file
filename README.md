@@ -1,6 +1,10 @@
 # vastdb_parq_schema_file
 
-Usage:
+## Limitations
+
+- Currently unable to calculate max column size for nested types (List, Map, Struct).
+
+## Usage:
 
 ```bash
 pip3 install --upgrade --quiet git+https://github.com/snowch/vastdb_parq_schema_file.git --use-pep517
@@ -103,3 +107,4 @@ Column 'data': 250.00 KB [EXCEEDS 126KB]
 
 Time taken for element size verification: 0.01 seconds
 ```
+
