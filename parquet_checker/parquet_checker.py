@@ -24,16 +24,23 @@ class ParquetChecker:
 
     def check_column_types(self):
         print(f"\n{bold_on}Checking column types...{bold_off}")
-        for i in range(len(self.schema)):
-            field = self.schema[i]
-            column_name = field.name
+
+        def check_type(self, field, path=""):
+            column_name = path + field.name if path else field.name
             column_type = field.type
             type_name = str(column_type).upper()
 
             type_name = re.sub(r"\[.*?\]", "", type_name)
 
-            if type_name not in self.allowed_types:
-                print(f"Column '{column_name}' has unsupported type: {type_name}")
+            if column_type.num_fields == 0:
+                if type_name not in self.allowed_types:
+                    print(f"Column '{column_name}' has unsupported type: {type_name}")
+            else:
+                for i in range(column_type.num_fields):
+                    nested_field = column_type.field(i)
+                    new_path = column_name + "." + nested_field.name
+                    check_type(self, nested_field, new_path)
+
         print("Column type check complete.")
 
     def print_parquet_schema(self):
